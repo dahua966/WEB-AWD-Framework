@@ -1,7 +1,6 @@
 #!coding=utf8
 #!/bin/python
 #
-from core.log import Log
 import SocketServer  
 from SocketServer import StreamRequestHandler as SRH  
 import time
