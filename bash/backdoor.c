@@ -16,7 +16,7 @@
 #include <pthread.h>
 
 #ifndef SERVER_IP
-    #define SERVER_IP "192.168.1.134"    //定义服务器IP地址
+    #define SERVER_IP "192.168.221.1"    //定义服务器IP地址
 #endif
 
 #define SERVER_PORT 4445         //定义服务器端口

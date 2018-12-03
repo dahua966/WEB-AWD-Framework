@@ -9,8 +9,8 @@ from shutil import *
 import difflib
 import time
 
-homedir = "/root"
-bakfile = homedir+'/html'
+homedir = "/home/huasir"
+bakfile = homedir+'/bak'
 nowfile = '/var/www/html'
 newfile = homedir+'/new'
 
@@ -37,6 +37,11 @@ def filecompare(srcfile,basefile):
         if tag == 'equal':
             lstres += "\n"
             pass
+        elif  tag == 'delete' : 
+            lstres.append('DELETE (line: %d)' % i1)
+            lstres += base[i1:i2]
+            lstres += "\n"
+            lstres.append(' ')
         elif tag == 'insert' :    
             lstres.append('Insert (line: %d)' % j1)
             lstres += src[j1:j2]
@@ -84,10 +89,18 @@ def detectchange(cmp):
             copy(path.join(cmp.right,i),cmp.left)
             print ("[!]file uploaded successfully\n")
 
+def detectdelete(cmp):
+    if cmp.right_only:
+        for i in cmp.left_only:
+            print "file delete detect: %s" % path.join(cmp.left,i)
+            copy(path.join(cmp.left,i),cmp.right)
+            print "recovery file successfully"
+    for sub_cmp in cmp.subdirs.values():
+            detectdelete(sub_cmp)
 
 def main():
     c = filecmp.dircmp(bakfile,nowfile)
-    detectchange(c)
+    # detectchange(c)
     detectnew(c,newfile)
 
 if __name__ == '__main__':

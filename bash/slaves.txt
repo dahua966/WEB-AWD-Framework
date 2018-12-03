@@ -1,0 +1,10 @@
+http://192.168.221.132/3/gcount/styles/.web2/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php
+http://192.168.221.134/.config.php

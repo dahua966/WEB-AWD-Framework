@@ -83,8 +83,6 @@ class PsGuard(object):
             return ACTION_ERRO
             
         
-        
-        
     def action_handler(self, process, action):
         if action == ACTION_PASS:
             self.pass_pids.append(process.pid)

@@ -55,6 +55,12 @@ class Success(BaseModel):
         result = db.query(Success).filter(Success.flag==text).count()
         return result
 
+    @staticmethod
+    def clear():
+        result = db.query(Success).filter(Success.stime < str(int(time.time())-ROUND_TIME)).delete()
+        db.commit()
+        print "[*]delete %d success flag" % result
+
 def main():
     BaseModel.metadata.create_all(engine)
 

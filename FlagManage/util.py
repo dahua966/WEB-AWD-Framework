@@ -7,21 +7,24 @@ from dbinit import Flag,db,Success
 import traceback  
 from log import Log
 
+DEBUG = False
 CHECK = False
 #huasir
 PATTERN = '[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}'
 FLAGURL = "https://172.16.4.1/Common/awd_sub_answer"
 # FLAGURL = "http://127.0.0.1/"
-
 TOKEN = '29f227503044c6e8adefa89ceebfc434'
+
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def postflag(flag):
     try:  
         flag = flag.strip()
         Log.info("Submitting flag: "+flag)
         if Success.ifexist(flag) > 0:
-            Log.error("This flag has been submited!")
-            return "[!]This flag has been submited!\r\n"
+            Log.error("This flag has been submited successfully!")
+            return "[!]This flag has been submited successfully!\r\n"
         if CHECK and not checkflag(flag):
             Log.error('Wrong flag format')
             return "[!]Wrong flag format\r\n"
@@ -41,7 +44,8 @@ def postflag(flag):
         Log.error('Submit failed for 3 times, flag will be log into database')
         raise RuntimeError('FlagError')
     except:
-        print traceback.print_exc()
+        if DEBUG:
+            print traceback.print_exc()
         try:
             if Flag.ifexist(flag) == 0:
                 db.add(Flag(flag=flag,stime=int(time.time())))
@@ -90,13 +94,19 @@ def cmd_server():
             try:
                 resubmitflag()
             except:
-                pass
+                Log.warning("resubmit flag failed")
+        elif cmd.startswith('clear'):
+            try:
+                Success.clear()
+            except:
+                Log.warning("clear success table failed")
         elif cmd.startswith('exit'):
             break
         elif cmd == 'help' or cmd == '?':
             print '''
             submit [flag]   submit a flag specially
             resubmit        resubmit all flag in db
+            clear           clear success table
             exit            exit
             '''
         else:
