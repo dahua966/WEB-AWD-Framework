@@ -3,16 +3,16 @@ import re
 import requests
 import time
 from pyquery import PyQuery as PQ
-from dbinit import Flag,db,Success
+from dbinit import Flag,db,Success,getround
 import traceback  
 from log import Log
 
 DEBUG = False
 CHECK = False
 #huasir
-PATTERN = '[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}'
-FLAGURL = "https://172.16.4.1/Common/awd_sub_answer"
-# FLAGURL = "http://127.0.0.1/"
+PATTERN = '^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$'
+# FLAGURL = "https://172.16.4.1/Common/awd_sub_answer"
+FLAGURL = "http://127.0.0.1:5000"
 TOKEN = '29f227503044c6e8adefa89ceebfc434'
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -35,7 +35,7 @@ def postflag(flag):
             # print res
             #判断条件
             if '"status":1' in res:
-                db.add(Success(flag=flag,stime=int(time.time())))
+                db.add(Success(flag=flag, roundd=getround(time.strftime('%H:%M',time.localtime()))))
                 db.commit()
                 Log.success('Submit Success')
                 return "[+]Submit Success\r\n"
@@ -48,7 +48,7 @@ def postflag(flag):
             print traceback.print_exc()
         try:
             if Flag.ifexist(flag) == 0:
-                db.add(Flag(flag=flag,stime=int(time.time())))
+                db.add(Flag(flag=flag, roundd=getround(time.strftime('%H:%M',time.localtime()))))
                 db.commit()
             else:
                 Log.wait("This flag has been insert into db, you should resubmit")
